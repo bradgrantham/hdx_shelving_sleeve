@@ -1,6 +1,6 @@
 // Replacement sleeve for HDX wire shelving storage unit, e.g. model 21656CPS
 
-$fn=75;
+$fn=40;
 
 shrink_from_outer = .3;
 top = 39.4; // the actual height of the sleeve
@@ -37,33 +37,48 @@ module sleeve()
 
 clip_over = 5;
 clip_height = 5;
+clip_move = 0; // clip_over/2
 
-module clippythings()
+module clipthing()
 {
-    translate([15,0, height / 2 - clip_height / 2]) cube([10, clip_over, clip_height], center=true);
-    translate([-15,0, height / 2 + clip_height / 2]) cube([10, clip_over, clip_height], center=true);
+    translate([0,-clip_move,0]) {
+        cube([10, clip_over, clip_height], center=true);
+        translate([0,0,2.5])
+            rotate(-90, [0,0,1])
+            rotate(90, [1,0,0])
+            linear_extrude(height=10, center=true)
+            polygon(points=[[clip_over/2,0],[-clip_over/2,0],[-clip_over/2,clip_over/2]]);
+        translate([0,0,-2.5])
+            rotate(-90, [0,0,1])
+            rotate(-90, [1,0,0])
+            linear_extrude(height=10, center=true)
+            polygon(points=[[clip_over/2,0],[-clip_over/2,0],[-clip_over/2,clip_over/2]]);
+    }
 }
 
-module smoothed_clippythings()
+module smoothed_clipthing()
 {
     minkowski() {
-        clippythings();
-        sphere(r=.1);
+        clipthing();
+        sphere(r=.3);
     }
 }
 
 module one_half_sleeve()
 {
+//    clippythings();
+
     difference() {
         intersection() {
             sleeve();
             union() {
                 translate([-25,0,0]) cube([50, 50, 50]);
-                rotate(180,[0,0,1]) clippythings();
+                translate([15,0, height / 2]) clipthing();
             };
         };
-        smoothed_clippythings();
+        rotate(180,[0,0,1]) translate([15,0, height / 2]) smoothed_clipthing();
     }
+
 }
 
 translate([0,10,0]) one_half_sleeve();
