@@ -1,6 +1,6 @@
 // Replacement sleeve for HDX wire shelving storage unit, e.g. model 21656CPS
 
-$fn=40;
+$fn=75;
 
 shrink_from_outer = .3;
 top = 39.4; // the actual height of the sleeve
