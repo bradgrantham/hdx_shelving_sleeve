@@ -1,27 +1,29 @@
 // Replacement sleeve for HDX wire shelving storage unit, e.g. model 21656CPS
 
-$fn=75;
+$fn=100;
 
-shrink_from_outer = .3;
+tolerance_against_shelf = .2;
+tolerance_against_leg = .4;
 top = 39.4; // the actual height of the sleeve
-height = 20; // set arbitrarily to make final part
+height = 35; // set arbitrarily to make final part
 leg_diameter = 25.40;
-enlarge_from_inner = .4;
 ring_radius_bottom = 30.6;
 ring_radius_top = 29.1;
 thickness_at_bottom = (ring_radius_bottom - leg_diameter) / 2;
 thickness_at_top = (ring_radius_top - leg_diameter) / 2;
 thickness_at_height = thickness_at_bottom + (thickness_at_top - thickness_at_bottom) / top * height;
+top_angle_drop = 2;
 
 module outline()
 {
-    polygon(points=[[0, 0], [thickness_at_bottom - shrink_from_outer,0], [thickness_at_height - shrink_from_outer, height],[0, height]]);
+    polygon(points=[[0, 0], [thickness_at_bottom - tolerance_against_shelf,0], [thickness_at_height - tolerance_against_shelf, height - top_angle_drop],[0, height]]);
+    translate([0, height/2]) circle(r = .4, $fn = 100);
 }
 
 module snapring()
 {
     rotate_extrude(convexity = 10)
-    translate([(leg_diameter + enlarge_from_inner) / 2 /* + (5.1/2 + 3.6/2) / 2 - shrink_from_outer */, height/2, 0])
+    translate([(leg_diameter + tolerance_against_leg) / 2 /* + (5.1/2 + 3.6/2) / 2 - tolerance_against_shelf */, height/2, 0])
     circle(r = .4, $fn = 100);
 }
 
@@ -29,10 +31,10 @@ module sleeve()
 {   
     $fa=1;
     rotate_extrude(convexity=1)
-    translate([(leg_diameter + enlarge_from_inner) / 2,0,0])
+    translate([(leg_diameter + tolerance_against_leg) / 2,0,0])
     // rotate(90, [1, 0, 0])
     outline();
-    snapring();
+    // snapring();
 }
 
 clip_over = 5;
@@ -66,20 +68,17 @@ module smoothed_clipthing()
 
 module one_half_sleeve()
 {
-//    clippythings();
-
     difference() {
         intersection() {
             sleeve();
             union() {
                 translate([-25,0,0]) cube([50, 50, 50]);
-                translate([15,0, height / 2]) clipthing();
+                translate([15,-2, height / 2]) clipthing();
             };
         };
-        rotate(180,[0,0,1]) translate([15,0, height / 2]) smoothed_clipthing();
+        rotate(180,[0,0,1]) translate([15,-2, height / 2]) smoothed_clipthing();
     }
 
 }
 
-translate([0,10,0]) one_half_sleeve();
-translate([0,-10,0]) rotate(180,[0,0,1]) one_half_sleeve();
+one_half_sleeve();
